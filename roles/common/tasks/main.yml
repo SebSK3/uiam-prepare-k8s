@@ -1,0 +1,21 @@
+---
+# - name: Sync the time
+#   ansible.builtin.service:
+#     name: systemd-timesyncd
+#     state: restarted
+
+# - name: Update the apt package index
+#   ansible.builtin.apt:
+#     update_cache: true
+
+# - name: Upgrade all packages to the latest version
+#   ansible.builtin.apt:
+#     upgrade: dist
+
+# - name: Remove unused packages
+#   ansible.builtin.apt:
+#     autoremove: true
+
+# - name: Clean up the apt cache
+#   ansible.builtin.apt:
+#     autoclean: true

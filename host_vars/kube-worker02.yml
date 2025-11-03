@@ -1,0 +1,4 @@
+ansible_host: 10.29.4.155
+ansible_user: student
+ansible_ssh_pass: kti
+ansible_ssh_port: 22

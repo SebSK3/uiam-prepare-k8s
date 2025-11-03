@@ -1,0 +1,4 @@
+kubernetes_version: v1.32
+crio_version: v1.32
+
+kubernetes_pod_network: 10.2.0.0/16

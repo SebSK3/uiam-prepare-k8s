@@ -1,0 +1,3 @@
+---
+- name: Include worker join task
+  ansible.builtin.include_tasks: join.yml

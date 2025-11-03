@@ -1,0 +1,63 @@
+---
+- name: Harden SSH Configuration
+  hosts: all
+  vars_files:
+    - group_vars/ssh.yml
+  become: true
+  become_method: ansible.builtin.su
+  vars:
+    ssh_keys: "{{ lookup('ansible.builtin.vars', 'ssh_keys') }}"  # Fetch SSH keys from the vault
+
+  tasks:
+    - name: Ensure sudo is installed
+      ansible.builtin.apt:
+        name: sudo
+        state: present
+
+    - name: Add user 'debilan' to sudo group
+      ansible.builtin.user:
+        name: debilan
+        groups: sudo
+        append: true
+
+    - name: Disable root login
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin\s+.*'
+        line: 'PermitRootLogin no'
+        state: present
+
+    - name: Change SSH port to 60022
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Port\s+.*'
+        line: 'Port 60022'
+        state: present
+
+    - name: Enforce public key authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PubkeyAuthentication\s+.*'
+        line: 'PubkeyAuthentication yes'
+        state: present
+
+    - name: Create .ssh directory
+      ansible.builtin.file:
+        path: "/home/debilan/.ssh"
+        state: directory
+        owner: "debilan"
+        group: "debilan"
+        mode: '0700'
+
+    - name: Set up authorized keys
+      ansible.builtin.copy:
+        content: "{{ ssh_keys | join('\n') }}"
+        dest: "/home/debilan/.ssh/authorized_keys"
+        owner: "debilan"
+        group: "debilan"
+        mode: '0600'
+
+    - name: Ensure SSH service is restarted
+      ansible.builtin.service:
+        name: sshd
+        state: restarted

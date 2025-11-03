@@ -1,0 +1,7 @@
+---
+- name: Init master control plane
+  ansible.builtin.include_tasks: init-master.yml
+  when: inventory_hostname == "kube-control-plane01"
+- name: Init common control plane
+  ansible.builtin.include_tasks: init.yml
+  when: inventory_hostname != "kube-control-plane01"

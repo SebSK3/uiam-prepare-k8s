@@ -1,0 +1,44 @@
+---
+- name: Check if already installed
+  ansible.builtin.stat:
+    path: "/root/.kube/config"
+  register: kube_config
+
+- name: Init Kubernetes # TODO: ansible-lint error here
+  ansible.builtin.shell: |
+    kubeadm init --pod-network-cidr={{ kubernetes_pod_network }} --apiserver-advertise-address=10.29.4.153
+  when: not kube_config.stat.exists
+
+- name: Create .kube directory
+  ansible.builtin.file:
+    path: "/root/.kube"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0700'
+  when: not kube_config.stat.exists
+
+- name: Copy Kubernetes configuration
+  ansible.builtin.copy:
+    remote_src: true
+    src: "/etc/kubernetes/admin.conf"
+    dest: "/root/.kube/config"
+    owner: "root"
+    group: "root"
+    mode: "0700"
+  when: not kube_config.stat.exists
+
+- name: Install python-pip for kubernetes.core.k8s
+  ansible.builtin.apt:
+    name: python3-kubernetes
+    state: present
+
+- name: Install Tigera Calico operator to Kubernetes
+  kubernetes.core.k8s:
+    state: present
+    src: https://raw.githubusercontent.com/projectcalico/calico/v3.29.1/manifests/tigera-operator.yaml
+
+- name: Install Tigera by creating custom resource
+  kubernetes.core.k8s:
+    state: present
+    template: custom-resource.yml.j2

@@ -1,0 +1,7 @@
+---
+- name: Include prerequisites tasks
+  ansible.builtin.include_tasks: prerequisites.yml
+- name: Include CR-IO tasks
+  ansible.builtin.include_tasks: cri.yml
+- name: Include install tasks
+  ansible.builtin.include_tasks: install.yml

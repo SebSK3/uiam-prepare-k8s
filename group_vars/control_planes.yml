@@ -1,0 +1,11 @@
+kubernetes_ports:
+  - { port: 6443, protocol: tcp, description: "Kubernetes API server" }
+  - { port: 2379, protocol: tcp, description: "etcd server client API" }
+  - { port: 2380, protocol: tcp, description: "etcd server client API" }
+  - { port: 10250, protocol: tcp, description: "kubelet API" }
+  - { port: 10251, protocol: tcp, description: "kube-scheduler" }
+  - { port: 10252, protocol: tcp, description: "kube-controller-manager" }
+kubernetes_components:
+    - kubeadm
+    - kubelet
+    - kubectl

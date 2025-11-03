@@ -1,0 +1,10 @@
+[control_planes]
+kube-control-plane01
+
+[workers]
+kube-worker01
+kube-worker02
+
+[production:children]
+control_planes
+workers

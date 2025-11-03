@@ -1,0 +1,5 @@
+kubernetes_ports:
+  - { port: 10250, protocol: tcp, description: "kubelet API" }
+kubernetes_components:
+  - kubeadm
+  - kubelet

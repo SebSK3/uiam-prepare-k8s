@@ -1,0 +1,30 @@
+---
+- name: Install firewalld
+  ansible.builtin.apt:
+    name: firewalld
+    state: present
+
+- name: Allow custom SSH port
+  ansible.posix.firewalld:
+    port: "{{ ansible_ssh_port }}/tcp"
+    permanent: true
+    state: enabled
+
+- name: Allow Kubernetes ports
+  ansible.posix.firewalld:
+    port: "{{ item.port }}/{{ item.protocol }}"
+    permanent: true
+    state: enabled
+  loop: "{{ kubernetes_ports }}"
+
+- name: Enable masquerading
+  ansible.posix.firewalld:
+    masquerade: true
+    permanent: true
+    state: enabled
+
+- name: Enable and start firewalld
+  ansible.builtin.service:
+    name: firewalld
+    enabled: true
+    state: restarted

@@ -1,0 +1,32 @@
+---
+- name: Configure static IP address for ens19
+  ansible.builtin.blockinfile:
+    dest: /etc/network/interfaces
+    content: |
+      auto {{ kubernetes_network_interface }}
+      iface {{ kubernetes_network_interface }} inet static
+      address {{ kubernetes_network_address }}
+      netmask 255.255.255.0
+  notify: Restart networking
+
+- name: Initialize an empty array to store variable values
+  ansible.builtin.set_fact:
+    ip_addresses: []
+    filenames: []
+
+- name: Extract specific variable from each file
+  ansible.builtin.set_fact:
+    ip_addresses: "{{ ip_addresses + [item_content.kubernetes_network_address | regex_replace('\/24', '')] }}"
+    filenames: "{{ filenames + [item | basename | regex_replace('\\.yml', '')] }}"
+  with_fileglob: "{{ playbook_dir }}/host_vars/*.yml"
+  vars:
+    item_content: "{{ lookup('file', item) | from_yaml }}"
+  when: item_content.kubernetes_network_address is defined
+
+- name: Configure /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^{{ item.key }}\s+{{ item.value }}$'
+    line: "{{ item.key }} {{ item.value }}"
+    create: false
+  loop: "{{ dict(ip_addresses | zip(filenames)) | dict2items }}"
